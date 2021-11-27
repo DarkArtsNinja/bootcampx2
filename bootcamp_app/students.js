@@ -13,8 +13,9 @@ const pool = new Pool({
 pool.query(`
   SELECT students.id AS student_id, students.name AS student_name, cohorts.name
   FROM students 
-  JOIN cohorts ON students.cohort_id = cohorts.id
-  LIMIT 5;
+  JOIN cohorts ON cohort_id = cohorts.id
+  WHERE cohorts.name LIKE $1
+  LIMIT $2;
 `)
 .then(res => {
   // console.log(res.rows);
