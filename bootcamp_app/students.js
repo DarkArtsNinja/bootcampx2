@@ -1,5 +1,5 @@
-const month = process.argv[2];
-const output = process.argv[3];
+// const month = process.argv[2];
+// const output = process.argv[3];
 
 const {Pool} = require('pg');
 
@@ -9,19 +9,21 @@ const pool = new Pool({
   host: 'localhost',
   database: 'bootcampx'
 });
+const month = process.argv[2];
+const output = process.argv[3] || 5; 
+const values = [`${month}`, output];
+const sql =
+`
+SELECT students.id as student_id, students.name as name, cohorts.name as cohort
+FROM students
+JOIN cohorts ON cohorts.id = cohort_id
+WHERE cohorts.name LIKE $1
+LIMIT $2;
+`
 
-pool.query(`
-  SELECT students.id AS student_id, students.name AS student_name, cohorts.name
-  FROM students 
-  JOIN cohorts ON cohort_id = cohorts.id
-  WHERE cohorts.name LIKE $1
-  LIMIT $2;
-`)
+pool.query(sql, values)
 .then(res => {
-  // console.log(res.rows);
-  for (let i = 0; i < output; i++) {
-    console.log(`${res.rows[i]["student_name"]} has an id of ${res.rows[i]["student_id"]} and was in the ${res.rows[i]["name"]} cohort`);
-    
-  }
-})
-.catch(err => console.error('query error', err.stack));
+  res.rows.forEach(user => {
+    console.log(`${user.name} has an id of ${user.student_id} and was in the ${user.cohort} cohort`);
+  })
+}).catch(err => console.error('query error', err.stack));
